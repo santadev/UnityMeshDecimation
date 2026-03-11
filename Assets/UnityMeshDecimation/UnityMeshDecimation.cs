@@ -41,6 +41,61 @@ namespace UnityMeshDecimation {
 		/// </summary>
 		public float maxTime;
 
+
+
+		//* Next
+		//	* Fork at: https://github.com/santadev/UnityMeshDecimation
+		//
+		/// <summary>
+		/// 'Exclude Mask'
+		///		Transform for use for connection with excludeColliders.
+		///		
+		/// Mesh inside this MeshFilter must be same as Decimated.
+		///		
+		/// </summary>
+		public MeshFilter	excludeMeshFilter;
+		/// <summary>
+		///	All Colliders from here will be automatically added to excludeColliders
+		///	* Must be child of excludeMeshFilter
+		/// </summary>
+		public Transform	excludeColliders_ChildrenCollect;
+			//
+			/// <summary>
+			/// 'Exclude Mask'
+			///		Faces with any vertex inside this colliders will remain unchanged.
+			///	Supported coliders:
+			///		Sphere
+			///		Box
+			///		Capsule
+			///		
+			/// </summary>
+			public Collider[]	excludeColliders;
+				//---
+				public bool ExcludeCollider_Supported_Is(Collider coll, bool no_Error_If_Not)
+				{
+                    if (!(coll as BoxCollider) && !(coll as SphereCollider) && !(coll as CapsuleCollider)) 
+					{
+						if (!no_Error_If_Not)
+							Debug.LogError("TargetConditions. coll is unsupported for exclude: " + coll, coll); 
+						return false;
+					}
+					return true;
+				}
+				//---
+		/// </summary>
+		///	Tolerance. 
+		/// </summary>
+		public float		excludeTolerance = 0.0001f;
+
+
+		//
+		//
+		//Last optimization result for info
+		public int			unsafe_Last_Optimize_Frozen_Faces;
+		public int			unsafe_Last_Optimize_Frozen_Verts;
+
+
+
 		public TargetConditions() {
 			this.faceCount = 0;
 			this.vertexCount = 0;
@@ -162,7 +217,7 @@ namespace UnityMeshDecimation {
 
 			this._mesh.InitIMark();
 			EdgeCollapse.globalMark = 0;
-			EdgeCollapse.Init(this._mesh, this._heap, this._bvh, collapseParam);
+			EdgeCollapse.Init(this._mesh, this._heap, this._bvh, collapseParam, targetOptions);
 
 			this._initVertexCount = this._mesh.vertexCount;
 			this._initFaceCount = this._mesh.faceCount;
