@@ -1,3 +1,15 @@
+# Exclude Mask for UnityMeshDecimation
+
+Create Renderer for decimated mesh. Place it on scene.
+Create child. Add there any amoust of Spheres, Boxes, Capsules. Can be in different sub-children.
+
+Fill Tool as on Picture:
+
+
+
+
+
+
 # UnityMeshDecimation
 
 [中文版說明](./README_tc.md)
