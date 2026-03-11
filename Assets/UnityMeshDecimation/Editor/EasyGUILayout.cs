@@ -1,6 +1,7 @@
 ﻿#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
+using System.IO;
 
 namespace UnityMeshDecimation.UI {
 	public static class EasyGUILayout {
@@ -90,8 +91,11 @@ namespace UnityMeshDecimation.UI {
 		public static bool FilePathField(string title, ref string value, string extension, string btnName = "Select", Object target = null) {
 			EditorGUILayout.BeginHorizontal();
 			var newValue = EditorGUILayout.TextField(title, value);
-			if(GUILayout.Button(btnName, GUILayout.Width(50))){
-				newValue = EditorUtility.SaveFilePanelInProject(title, "", extension, "");
+			if(GUILayout.Button(btnName, GUILayout.Width(50)))
+			{
+				//* newValue = EditorUtility.SaveFilePanelInProject(title, "", extension, "");
+				//* Next 
+				newValue = EditorUtility.SaveFilePanelInProject(title, Path.GetFileNameWithoutExtension(value), extension, "", Path.GetDirectoryName(value));
 			}
 			EditorGUILayout.EndHorizontal();
 			if (newValue != value) {

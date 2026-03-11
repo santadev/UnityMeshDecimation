@@ -5,7 +5,7 @@ using UnityMeshDecimation.Internal;
 using UnityMesh = UnityEngine.Mesh;
 
 namespace UnityMeshDecimation.UI {
-    public class MeshDecimationEditor : EditorWindow {
+    public partial class MeshDecimationEditor : EditorWindow {
 
         private static MeshDecimationEditor Window { get; set; }
         [MenuItem("Window/Unity Mesh Decimation")]
@@ -26,6 +26,9 @@ namespace UnityMeshDecimation.UI {
         private MeshDecimationProfile profile;
         private Editor profileEditor;
         private string outputPath;
+        //
+        //* Next
+        private bool profile_FoldOut = false;
 
         #region Editor Hooks
         private void OnEnable() {
@@ -65,28 +68,53 @@ namespace UnityMeshDecimation.UI {
             EasyGUILayout.IntField("Max Operations", ref targetConditions.maxOperations);
             EasyGUILayout.FloatField("Max Error", ref targetConditions.maxMetrix);
             EasyGUILayout.FloatField("Max Time", ref targetConditions.maxTime);
+            //
+            //* Next
+            OnGUI_EndCondition_ExcludeMask__Next();
+            //
             EasyGUILayout.EndRegion();
 
+            
+            
             EasyGUILayout.BeginRegion("Profile");
             EasyGUILayout.ObjectField(string.Empty, ref this.profile);
-            if (this.profile) {
-                Editor.CreateCachedEditor(this.profile, null, ref this.profileEditor);
-                this.profileEditor.OnInspectorGUI();
+            //
+            profile_FoldOut = EditorGUILayout.Foldout(profile_FoldOut, "Settings:", true);
+            if (profile_FoldOut)
+            {
+                if (this.profile) 
+                {
+                    Editor.CreateCachedEditor(this.profile, null, ref this.profileEditor);
+                    this.profileEditor.OnInspectorGUI();
+                }
             }
             EasyGUILayout.EndRegion();
+
+
+
 
             EasyGUILayout.BeginRegion("Output");
             if(EasyGUILayout.FilePathField("Path", ref this.outputPath, "asset")) {
-                GUI.FocusControl(null);
+                //* Next: why?
+                //      Was: GUI.FocusControl(null);
             }
+            //
+            //* Next
+            OnGUI_PathRegion_AfterSrc__Next();
+            //
             EasyGUILayout.EndRegion();
+
+
+
 
             EditorGUILayout.EndScrollView();
 
             GUILayout.FlexibleSpace();
-            if (GUILayout.Button("Execute")) {
+            if (GUILayout.Button("Execute", GUILayout.Height(35))) {
                 this.Execute();
             }
+
+            GUILayout.Space(10);
         }
         #endregion
 
@@ -102,6 +130,32 @@ namespace UnityMeshDecimation.UI {
             if (this.profile == null) {
                 this.LoadDefaultProfile();
             }
+
+            //
+			if (targetConditions.excludeMeshFilter)
+			{
+				//* Debug.Log("Safety checks for MeshFilter: " + targetConditions.excludeMeshFilter, targetConditions.excludeMeshFilter);
+                //
+				if (targetConditions.excludeMeshFilter.sharedMesh != mesh) { EditorUtility.DisplayDialog("", "excludeMeshFilter contain differetn mesh that in main mesh. Stop.", "OK"); return; }
+                if (!targetConditions.excludeColliders_ChildrenCollect) { EditorUtility.DisplayDialog("", "No excludeColliders_ChildrenCollect setted. Stop.", "OK"); return; }
+                //
+                if (!targetConditions.excludeColliders_ChildrenCollect.parent) { EditorUtility.DisplayDialog("", "excludeColliders_ChildrenCollect must be child of excludeMeshFilter. No paretn at all. Stop.", "OK"); return; }
+                if (targetConditions.excludeColliders_ChildrenCollect.parent != targetConditions.excludeMeshFilter.transform) { EditorUtility.DisplayDialog("", "excludeColliders_ChildrenCollect must be child of excludeMeshFilter. Stop.", "OK"); return; }
+                //
+                targetConditions.excludeColliders = targetConditions.excludeColliders_ChildrenCollect.GetComponentsInChildren<Collider>();
+                if (targetConditions.excludeColliders.Length <= 0) { EditorUtility.DisplayDialog("", "No Colliders found in excludeColliders_ChildrenCollect. Stop.", "OK"); return; }
+                foreach(Collider coll in targetConditions.excludeColliders)
+                    if (!targetConditions.ExcludeCollider_Supported_Is(coll, false)) { EditorUtility.DisplayDialog("", "Colliders type is unsupported. See log. Stop.", "OK"); return; }
+
+                if (targetConditions.excludeTolerance < 0.000001f)
+                {
+                    EditorUtility.DisplayDialog("", "excludeTolerance is too small. Fixing and continue.", "OK");
+                    targetConditions.excludeTolerance = 0.000001f;
+                }
+			}
+
+
+            //
             var oldMesh = AssetDatabase.LoadAssetAtPath<UnityMesh>(this.outputPath);
             var newMesh = this.profile.Optimize(this.mesh, this.targetConditions, oldMesh);
             if (oldMesh) {
