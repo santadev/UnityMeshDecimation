@@ -24,7 +24,10 @@ Sample is in: "\UnityMeshDecimation\Sample_ExcludeMask\Kyle - Decimated with Exc
 
 
 Enjoy!
-PS: Not tested in runtime and with other Target Condotions except Faces.
+
+PS: Also added useful buttons to fill Path automatically and to Swap-Back result to compare it with source mesh.
+
+PPS: Not tested in runtime and with other Target Conditions except Faces.
 
 
 
