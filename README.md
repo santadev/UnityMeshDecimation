@@ -18,7 +18,7 @@ Fill Tool as on Picture:
 ![Input](./readme_assets/exclude_info_ARROWS.jpg)
 
 Remeber Target Faces-Vertices must be more than frozen ones.
-To know amount of frozen - Execute once and see "Ajust conditions" block on the picture.
+To know amount of frozen - Execute once and look at "Ajust conditions" block on the picture.
 
 Sample is in: "\UnityMeshDecimation\Sample_ExcludeMask\Kyle - Decimated with Exclude Mask.prefab" 
 
