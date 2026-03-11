@@ -1,9 +1,11 @@
 # Exclude Mask for UnityMeshDecimation
 
 Before:
+
 ![Input](./readme_assets/exclude_info_before.jpg)
 
 After:
+
 ![Input](./readme_assets/exclude_info_after.jpg)
 
 
