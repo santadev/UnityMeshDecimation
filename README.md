@@ -5,7 +5,7 @@ Create child. Add there any amoust of Spheres, Boxes, Capsules. Can be in differ
 
 Fill Tool as on Picture:
 
-
+![Input](./readme_assets/exclude info - ARROWS.jpg)
 
 
 
