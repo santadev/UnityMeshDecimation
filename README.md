@@ -1,11 +1,26 @@
 # Exclude Mask for UnityMeshDecimation
 
 Create Renderer for decimated mesh. Place it on scene.
-Create child. Add there any amoust of Spheres, Boxes, Capsules. Can be in different sub-children.
+Create child. Add there any amount of Spheres, Boxes, Capsules. Can be in different sub-children.
 
 Fill Tool as on Picture:
 
 ![Input](./readme_assets/exclude_info_ARROWS.jpg)
+
+Remeber Target Faces-Vertices must be more than frozen ones.
+To know amount of frozen - Execute once and see "Read" block.
+
+Sample is in: "\UnityMeshDecimation\Sample_ExcludeMask\Kyle - Decimated with Exclude Mask.prefab" 
+
+Before:
+![Input](./readme_assets/exclude_info_before.jpg)
+
+After:
+![Input](./readme_assets/exclude_info_after.jpg)
+
+
+Enjoy!
+PS: Not tested in runtime and with other Target Condotions except Faces.
 
 
 
