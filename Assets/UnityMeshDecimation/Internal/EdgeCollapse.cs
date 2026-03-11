@@ -21,7 +21,10 @@ namespace UnityMeshDecimation.Internal {
 		private VertexPair _pair;
 		private float _priority;
 		private int _locakMark;
-		public static void Init(Mesh mesh, BinaryHeap<float, EdgeCollapse> heap, BVH<Face> bvh, EdgeCollapseParameter param) {
+		public static void Init(Mesh mesh, BinaryHeap<float, EdgeCollapse> heap, BVH<Face> bvh, EdgeCollapseParameter param,
+								TargetConditions targetOptions //* N - для корретного read-only
+								) 
+		{
 			param = (EdgeCollapseParameter)param.Clone();
 			param.UsedProperty &= mesh.properties;
 			if (param.OptimalSampleCount <= 0) param.OptimalSampleCount = 1;
@@ -49,6 +52,88 @@ namespace UnityMeshDecimation.Internal {
 					}
 				}
 			}
+
+
+			//* Next - Exclude Mask
+			//
+			//
+			if (targetOptions.excludeMeshFilter)
+			{
+				Debug.Log("Exclude Mask for MeshFilter: " + targetOptions.excludeMeshFilter, targetOptions.excludeMeshFilter);
+				Debug.Log("                * unsafe from here: safety check are in editor part in MeshDecimationEditor.cs");
+
+				//
+				int frozen_Verts = 0;
+				int frozen_Faces = 0;
+				for (int i = 0; i < mesh.faces.Count; i++) 
+				{
+					var face = mesh.faces[i];
+					if (!face.IsDeleted() && face.IsWritable()) 
+					{
+						for (int j = 0; j < Face.VERTEX_COUNT; j++) 
+						{
+							bool freeze_Is = false;
+                            if (!System.Object.ReferenceEquals(targetOptions.excludeMeshFilter, null))
+							{
+								//Они дети targetOptions.excludeMeshFilter и он тот же что меш что делаем
+								//	Надо точку перевести в трансофрм targetOptions.excludeMeshFilter
+								//	И дальеш глоабльно проверить по колладеру
+								Vector3 vGlobal = targetOptions.excludeMeshFilter.transform.TransformPoint(face.V(j).pos);
+
+								foreach(Collider coll in targetOptions.excludeColliders)
+								{
+									Vector3 closestGlobal = coll.ClosestPoint(vGlobal);
+									if ((vGlobal - closestGlobal).magnitude < targetOptions.excludeTolerance)
+									{
+										freeze_Is = true;
+										break; //* optimization bea$%#$!!!!!
+									}
+								}
+							}
+							//
+							if (freeze_Is)
+							{
+								if (face.V(j).IsWritable())
+								{
+									face.V(j).ClearWritable();
+									frozen_Verts++;
+								}
+								if (face.IsWritable())
+								{
+									face.ClearWritable();
+									frozen_Faces++;
+								}
+							}
+						}
+					}
+				}
+				Debug.Log("      frozen_Faces = " + frozen_Faces);
+				Debug.Log("      frozen_Verts = " + frozen_Verts);
+				//
+				//* если заморозили больше цели - будет перекошено )
+				if (targetOptions.faceCount > 0)
+					if (targetOptions.faceCount < frozen_Faces)
+					{
+						Debug.LogError("      targetOptions.faceCount ("+targetOptions.faceCount+") < ("+frozen_Faces+") frozen_Faces. Increasing targetOptions.faceCount as frozen_Faces * 1.25f");
+						targetOptions.faceCount = frozen_Faces + (frozen_Faces >> 2);
+						Debug.LogError("          New targetOptions.faceCount  = " + targetOptions.faceCount);
+					}
+				if (targetOptions.vertexCount > 0)
+					if (targetOptions.vertexCount < frozen_Verts)
+					{
+						Debug.LogError("      targetOptions.vertexCount ("+targetOptions.vertexCount+") < ("+frozen_Verts+") frozen_Verts. Increasing targetOptions.vertexCount as frozen_Verts * 1.25f");
+						targetOptions.vertexCount = frozen_Verts + (frozen_Verts >> 2);
+						Debug.LogError("          New targetOptions.vertexCount  = " + targetOptions.vertexCount);
+					}
+				//
+				//* save real freeze
+				targetOptions.unsafe_Last_Optimize_Frozen_Faces = frozen_Faces;
+				targetOptions.unsafe_Last_Optimize_Frozen_Verts = frozen_Verts;
+
+			} //* targetOptions.excludeMeshFilter
+
+
+
 
 			InitQuadric(mesh, param);
 			InitCollapses(mesh, heap, bvh, param);
