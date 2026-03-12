@@ -27,32 +27,6 @@ namespace UnityMeshDecimation.UI
         //==========================================================
 
         //----------------------------------------------------------
-        [MenuItem("Custom/Editor/Windows/Mesh Decimation")]
-        static void Init_CustomEditorWindows() 
-        {
-            Init();
-        }
-        //----------------------------------------------------------
-        [MenuItem("Custom/Graphics/Mesh/Decimation/Mesh Decimation")]
-        static void Init_MeshTools() 
-        {
-            Init();
-        }
-        //----------------------------------------------------------
-
-
-        //----------------------------------------------------------
-        static void Open_For_MeshFilter(MeshFilter mf) 
-        {
-           //...
-        }
-        //----------------------------------------------------------
-
-
-
-        //==========================================================
-
-        //----------------------------------------------------------
         //Ret:  как в Src - EasyGUILayout
         //          true если менялось
         private bool OnGUI_EndCondition_ExcludeMask__Next(Object target = null) 
@@ -62,6 +36,7 @@ namespace UnityMeshDecimation.UI
 
             EditorGUILayout.HelpBox("* Remeber! Target 'Face Count' and 'Vertex Count' must be more than frozen ones." +
                                      "\n   Real target Count is 'Face - Frozen_Faces' etc." +
+
                                      "\n   To know amount of frozen 'Execute' once and they will be printed below.", MessageType.Info);
 
             if ((targetConditions.unsafe_Last_Optimize_Frozen_Faces > 0) || (targetConditions.unsafe_Last_Optimize_Frozen_Verts > 0))
